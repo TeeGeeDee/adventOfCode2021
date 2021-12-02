@@ -1,7 +1,7 @@
 data = map(x->parse(Int,x),readlines("data.txt"));
-nInc = x->sum(x[2:end].>x[1:end-1]);
-print("Answer 1 = $(nInc(data))\n")
+nincreases = x->sum(x[2:end].>x[1:end-1]);
+print("Answer 1 = $(nincreases(data))\n")
 
-rolSum = cumsum(data);
-rolSum = rolSum[3:end]-[0; rolSum[1:end-3]];
-print("Answer 2 = $(nInc(rolSum))\n")
+rolsum = cumsum(data);
+rolSum = rolsum[3:end]-[0; rolsum[1:end-3]];
+print("Answer 2 = $(nincreases(rolsum))\n")
