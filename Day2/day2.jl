@@ -1,11 +1,14 @@
-data = readlines("data.txt");
 coordinates = [0,0,0];
-for command in data
+for command in eachline("data.txt")
     dir,numstr = split(command);
     num = parse(Int,numstr);
-    coordinates[1+(dir!="forward")] += num * (1-2*(dir=="up"));
     if dir=="forward"
+        coordinates[1] += num
         coordinates[3] += num * coordinates[2]
+    elseif dir=="up"
+        coordinates[2] -= num;
+    elseif dir=="down"
+        coordinates[2] += num;
     end
 end
 print("answer 1 = $(prod(coordinates[1:2]))\n")
