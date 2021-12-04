@@ -1,23 +1,22 @@
 data = readlines(if isempty(ARGS) "data.txt" else ARGS[1] end);
-freq = [[c=='1' for c in s] for s in data];
-gammabin = sum(freq).>(length(freq)/2);
-bin2dec(binarray) = parse(Int,reduce(*,map(x->string(Int(x)),binarray)),base=2)
-gamma   = bin2dec(gammabin)
-epsilon = bin2dec(.!gammabin)
+mat = reduce(vcat,permutedims.(collect.(data))).=='1';
+gammabin = sum(mat,dims=1) .>= size(mat,1)/2;
+bin2dec(binarray) = parse(Int,reduce(*,map(x->string(Int(x)),binarray)),base=2);
+gamma   = bin2dec(gammabin);
+epsilon = bin2dec(.!gammabin);
 print("Answer 1 = $(gamma*epsilon)\n")
 
-function applyrule(mydata,inrule)
-    pos = 0;
-    while length(mydata)>1
-        pos += 1;
-        mydata = mydata[inrule([d[pos] for d in mydata])]
+function applyrule(m,inrule)
+    j = 0;
+    while size(m,1)>1
+        j += 1;
+        m = m[inrule(m[:,j]),:]
     end
-    return parse(Int,mydata[1],base=2)
+    return bin2dec(m);
 end
 
-oxygenrule(x) = x.== if sum(x.=='1')>=(length(x)/2) '1' else '0' end;
-co2rule(x) = .!oxygenrule(x);
-oxygen = applyrule(data,oxygenrule);
-co2    = applyrule(data,co2rule);
+oxygenrule(x) = x .== (sum(x,dims=1) .>= size(x,1)/2);
+co2rule(x)    = .!oxygenrule(x);
+oxygen = applyrule(mat,oxygenrule)
+co2    = applyrule(mat,co2rule)
 print("Answer 2 = $(oxygen*co2)\n")
-
