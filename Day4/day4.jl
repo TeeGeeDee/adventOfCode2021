@@ -7,7 +7,7 @@ for callednum in callouts, i in 1:length(boards)
     if finished[i] continue end
     boards[i][boards[i].==callednum] .= NaN; # mark the board
     hits = isnan.(boards[i]);
-    if !finished[i] & (any(all(hits,dims=1)) | any(all(hits,dims=2)))
+    if any(all(hits,dims=1)) | any(all(hits,dims=2))
         score = callednum * sum(Int.(boards[i][.!hits]));
         if !any(finished)
             print("Part 1 score = $score\n");
