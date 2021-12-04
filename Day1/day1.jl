@@ -1,5 +1,5 @@
-data = map(x->parse(Int,x),readlines("data.txt"));
-nincreases = x->sum(x[2:end].>x[1:end-1]);
+data = parse.(Int,readlines("data.txt"));
+nincreases(x) = sum(x[i]>x[i-1] for i in 2:length(x));
 print("Answer 1 = $(nincreases(data))\n")
 
 rolsum = cumsum(data);
