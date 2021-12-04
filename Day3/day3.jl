@@ -1,8 +1,8 @@
 data = readlines("data.txt");
 mat = reduce(vcat,permutedims.(collect.(data))).=='1';
-mostpop(x) = sum(x,dims=1) .>= size(x,1)/2;
+mostpop(x) = sum(x) .>= length(x)/2;
 bin2dec(binarray) = parse(Int,reduce(*,string.(Int.(binarray))),base=2);
-gammabin = mostpop(mat);
+gammabin = mostpop.(eachcol(mat));
 gamma    = bin2dec(gammabin);
 epsilon  = bin2dec(.!gammabin);
 print("Answer 1 = $(gamma*epsilon)\n")
