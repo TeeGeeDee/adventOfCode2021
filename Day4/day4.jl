@@ -10,12 +10,9 @@ function day4(file)
         boards[i][boards[i].==callednum] .= NaN;
         hits = isnan.(boards[i]);
         done[i] |= any(all(hits,dims=1)) || any(all(hits,dims=2));
-        if done[i]
-            score = callednum * sum(Int.(boards[i][.!hits]));
-            if     sum(done)==1  push!(answers,score);
-            elseif all(done)     push!(answers,score);
-                break
-            end
+        if done[i] && (sum(done)==1 || all(done))
+            push!(answers,callednum * sum(Int.(boards[i][.!hits])));
+            if all(done) break end
         end
     end
     return reduce(tuple,answers)
