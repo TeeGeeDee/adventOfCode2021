@@ -1,0 +1,17 @@
+using Test
+include("day3.jl")
+
+const TEST_STRING = """00100
+11110
+10110
+10111
+10101
+01111
+00111
+11100
+10000
+11001
+00010
+01010"""
+
+@test day3(IOBuffer(TEST_STRING))==(198,230)
