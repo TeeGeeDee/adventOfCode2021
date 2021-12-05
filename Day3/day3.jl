@@ -1,11 +1,10 @@
-data = readlines("data.txt");
-mat = reduce(vcat,permutedims.(collect.(data))).=='1';
+mat = reduce(vcat,permutedims.(collect.(readlines("data.txt")))).=='1';
 mostpop(x) = sum(x) .>= length(x)/2;
-bin2dec(binarray) = parse(Int,reduce(*,string.(Int.(binarray))),base=2);
+bin2int(bin) = parse(Int,reduce(*,string.(Int.(bin))),base=2);
 gammabin = mostpop.(eachcol(mat));
-gamma    = bin2dec(gammabin);
-epsilon  = bin2dec(.!gammabin);
-print("Answer 1 = $(gamma*epsilon)\n")
+gamma    = bin2int(gammabin);
+epsilon  = bin2int(.!gammabin);
+println("Answer 1 = $(gamma*epsilon)")
 
 function applyrule(m,inrule)
     j = 0;
@@ -13,9 +12,9 @@ function applyrule(m,inrule)
         j += 1;
         m = m[inrule(m[:,j]),:]
     end
-    return bin2dec(m);
+    bin2int(m);
 end
 
 oxygen = applyrule(mat,x-> x .== mostpop(x));
 co2    = applyrule(mat,x-> x .!== mostpop(x));
-print("Answer 2 = $(oxygen*co2)\n")
+println("Answer 2 = $(oxygen*co2)")
