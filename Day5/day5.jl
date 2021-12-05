@@ -7,10 +7,8 @@ function day5(file)
         gridsize = maximum(linedata);
         grid = zeros(gridsize,gridsize);
         for (x1,y1,x2,y2) in eachrow(linedata)
-            if x1==x2
-                grid[x1,atob(y1,y2)] .+= 1
-            elseif y1==y2
-                grid[atob(x1,x2),y1] .+= 1
+            if x1==x2 || y1==y2
+                grid[atob(x1,x2),atob(y1,y2)] .+= 1
             elseif includediagonal
                 grid[CartesianIndex.(zip(atob(x1,x2),atob(y1,y2)))] .+= 1
             end
