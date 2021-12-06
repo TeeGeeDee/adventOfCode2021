@@ -8,7 +8,7 @@ end
 function countafterndays(counts,ndays)
     for i = 1:ndays
         counts = circshift(counts,-1);
-        counts[7] += counts[end]; # refreshed
+        counts[7] += counts[end]; # circshift sent 0->8, also need to add to 6
     end
     return sum(counts)
 end
