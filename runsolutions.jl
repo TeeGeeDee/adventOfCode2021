@@ -4,6 +4,8 @@ include("Day3/day3.jl");
 include("Day4/day4.jl");
 include("Day5/day5.jl");
 include("Day6/day6.jl");
+include("Day7/day7.jl");
+
 
 println("Day 1:");
 @time part1,part2 = day1("Day1/data.txt");
@@ -28,4 +30,7 @@ println("Solution 1 = $part1. Solution 2 = $part2.");
 println("Day 6:");
 @time part1,part2 = day6("Day6/data.txt");
 # 0.000146 seconds (359 allocations: 68.852 KiB)
+println("Solution 1 = $part1. Solution 2 = $part2.");
+println("Day 7:");
+@time part1,part2 = day7("Day7/data.txt");
 println("Solution 1 = $part1. Solution 2 = $part2.");
