@@ -6,6 +6,7 @@ include("Day5/day5.jl");
 include("Day6/day6.jl");
 include("Day7/day7.jl");
 include("Day8/day8.jl");
+include("Day9/day9.jl");
 
 # get compilation done (is this fair?)
 # what it says to do here: https://docs.julialang.org/en/v1/manual/performance-tips/#Measure-performance-with-[@time](@ref)-and-pay-attention-to-memory-allocation
@@ -17,6 +18,7 @@ day5("Day5/data.txt");
 day6("Day6/data.txt");
 day7("Day7/data.txt");
 day8("Day8/data.txt");
+day9("Day9/data.txt");
 
 println("Day 1:");
 @time part1,part2 = day1("Day1/data.txt");
@@ -49,4 +51,8 @@ println("Solution 1 = $part1. Solution 2 = $part2.");
 println("Day 8:");
 @time part1,part2 = day8("Day8/data.txt");
 # 0.004315 seconds (43.99 k allocations: 2.289 MiB)
+println("Solution 1 = $part1. Solution 2 = $part2.");
+println("Day 9:");
+@time part1,part2 = day9("Day9/data.txt");
+# 0.015105 seconds (121.23 k allocations: 6.754 MiB)
 println("Solution 1 = $part1. Solution 2 = $part2.");

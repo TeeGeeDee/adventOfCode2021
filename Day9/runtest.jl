@@ -1,0 +1,10 @@
+using Test
+include("day9.jl")
+
+const TEST_STRING = """2199943210
+3987894921
+9856789892
+8767896789
+9899965678"""
+
+@test day9(IOBuffer(TEST_STRING))==15
