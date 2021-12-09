@@ -54,5 +54,5 @@ println("Day 8:");
 println("Solution 1 = $part1. Solution 2 = $part2.");
 println("Day 9:");
 @time part1,part2 = day9("Day9/data.txt");
-# 0.015105 seconds (121.23 k allocations: 6.754 MiB)
+# 0.013390 seconds (106.64 k allocations: 5.641 MiB)
 println("Solution 1 = $part1. Solution 2 = $part2.");

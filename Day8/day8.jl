@@ -1,4 +1,3 @@
-# TODO - tidy, speed-up, maybe automate logic currently on lines 14-17
 const DIGITS = ["abcefg","cf","acdeg","acdfg","bcdf",
                                 "abdfg","abdefg","acf","abcdefg","abcdfg"];
 const LETTER_COUNT_MAP = Dict(4=>'e',6=>'b',9=>'f');
@@ -21,9 +20,9 @@ function decode(code,output)
     counts = getcounts(reduce(*,code));
     lettermap = Dict(l=>LETTER_COUNT_MAP[c] for (l,c) in counts if haskey(LETTER_COUNT_MAP,c))
     lettermap[[l for l in code[length.(code).==2][1] if l ∉ keys(lettermap)][1]] = 'c';
-    lettermap[[l for (l,v) in counts if (v==8) & (!haskey(lettermap,l))][1]] = 'a';
+    lettermap[[l for (l,v) in counts if (v==8) & (l ∉ keys(lettermap))][1]] = 'a';
     lettermap[[l for l in code[length.(code).==4][1] if l ∉ keys(lettermap)][1]] = 'd';
-    lettermap[[l for (l,v) in counts if (v==7) & (!haskey(lettermap,l))][1]] = 'g';
+    lettermap[[l for (l,v) in counts if (v==7) & (l ∉ keys(lettermap))][1]] = 'g';
 
     translatedoutput = [reduce(*,sort([lettermap[letter] for letter in digit])) for digit in output];
     stringtonumchar = Dict(DIGITS[i]=>string(i-1)[1] for i in 1:length(DIGITS));

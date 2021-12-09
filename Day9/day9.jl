@@ -8,10 +8,11 @@ function day9(file)
     isrightlower[:,end] .= false;
     numlowerneighbours = isabovelower + isbelowlower + isleftlower + isrightlower;
     islowpoint = numlowerneighbours.==0;
+    # part 2:
     basinsize = zeros(Int,size(mat)...);
     for ind in findall(mat.!=9)
-        p = getindex.([ind],[1,2]);
-        while true
+        p = [Tuple(ind)...];
+        while true # take any route downhill - they all end in the same place
             if     isabovelower[ind] p .+= [-1,0]
             elseif isbelowlower[ind] p .+= [1,0]
             elseif isleftlower[ind]  p .+= [0,-1]
