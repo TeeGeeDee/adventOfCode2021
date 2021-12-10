@@ -7,4 +7,4 @@ const TEST_STRING = """2199943210
 8767896789
 9899965678"""
 
-@test day9(IOBuffer(TEST_STRING))==15
+@test day9(IOBuffer(TEST_STRING))==(15,1134)

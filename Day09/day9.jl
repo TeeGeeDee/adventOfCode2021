@@ -10,17 +10,21 @@ function day9(file)
     islowpoint = numlowerneighbours.==0;
     # part 2:
     basinsize = zeros(Int,size(mat)...);
+    basinfloor = Array{Union{Missing,CartesianIndex{2}}}(missing, size(mat)...);
+    basinfloor[findall(islowpoint)] = findall(islowpoint);
     for ind in findall(mat.!=9)
-        p = [Tuple(ind)...];
-        while true # take any route downhill - they all end in the same place
-            if     isabovelower[ind] p .+= [-1,0]
-            elseif isbelowlower[ind] p .+= [1,0]
-            elseif isleftlower[ind]  p .+= [0,-1]
-            elseif isrightlower[ind] p .+= [0,1]
+        path = [ind];
+        while ismissing(basinfloor[ind])
+            if     isabovelower[ind] move = [-1,0]
+            elseif isbelowlower[ind] move = [1,0]
+            elseif isleftlower[ind]  move = [0,-1]
+            elseif isrightlower[ind] move = [0,1]
             end
-            ind = CartesianIndex((p...));
-            if islowpoint[ind] basinsize[ind] +=1; break end
+            ind = CartesianIndex(Tuple([Tuple(ind)...]+move));
+            append!(path,(ind,));
         end
+        for i in path[1:end-1] basinfloor[i] = basinfloor[ind] end # so we can short-cut next time
+        basinsize[basinfloor[ind]] += 1;
     end
     largestbasinsizes = basinsize[islowpoint][partialsortperm(basinsize[islowpoint], 1:3,rev=true)]
     return sum(mat[islowpoint].+1),prod(largestbasinsizes)
