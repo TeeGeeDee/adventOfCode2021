@@ -61,7 +61,7 @@ println("Day 8:");
 println("Solution 1 = $part1. Solution 2 = $part2.");
 println("Day 9:");
 @time part1,part2 = day9("Day09/data.txt");
-# 0.010598 seconds (97.69 k allocations: 5.910 MiB)
+# 0.001580 seconds (19.29 k allocations: 2.547 MiB)
 println("Solution 1 = $part1. Solution 2 = $part2.");
 println("Day 10:");
 @time part1,part2 = day10("Day10/data.txt");
@@ -69,5 +69,5 @@ println("Day 10:");
 println("Solution 1 = $part1. Solution 2 = $part2.");
 println("Day 11:");
 @time part1,part2 = day11("Day11/data.txt");
-# 0.022130 seconds (223.48 k allocations: 6.473 MiB)
+# 0.012160 seconds (137.77 k allocations: 4.760 MiB)
 println("Solution 1 = $part1. Solution 2 = $part2.");

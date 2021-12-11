@@ -15,12 +15,12 @@ function day9(file)
     for ind in findall(mat.!=9)
         path = [ind];
         while ismissing(basinfloor[ind])
-            if     isabovelower[ind] move = [-1,0]
-            elseif isbelowlower[ind] move = [1,0]
-            elseif isleftlower[ind]  move = [0,-1]
-            elseif isrightlower[ind] move = [0,1]
+            if     isabovelower[ind] move = (-1,0)
+            elseif isbelowlower[ind] move = (1,0)
+            elseif isleftlower[ind]  move = (0,-1)
+            elseif isrightlower[ind] move = (0,1)
             end
-            ind = CartesianIndex(Tuple([Tuple(ind)...]+move));
+            ind = CartesianIndex(ind.I.+move);
             push!(path,ind);
         end
         for i in path[1:end-1] basinfloor[i] = basinfloor[ind] end # so we can short-cut next time
