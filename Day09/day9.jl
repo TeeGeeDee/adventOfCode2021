@@ -21,7 +21,7 @@ function day9(file)
             elseif isrightlower[ind] move = [0,1]
             end
             ind = CartesianIndex(Tuple([Tuple(ind)...]+move));
-            append!(path,(ind,));
+            push!(path,ind);
         end
         for i in path[1:end-1] basinfloor[i] = basinfloor[ind] end # so we can short-cut next time
         basinsize[basinfloor[ind]] += 1;

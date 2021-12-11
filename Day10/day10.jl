@@ -7,7 +7,7 @@ const OPEN_OF = Dict(')'=>'(',']'=>'[','}'=>'{','>'=>'<');
 function day10(file)
     points1 = 0;
     points2 = RBTree{Int}();
-    for (i,line) in enumerate(eachline(file))
+    for line in eachline(file)
         stack = Stack{Char}();
         iscorrupted = false;
         for c in line
