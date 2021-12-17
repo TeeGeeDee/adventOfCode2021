@@ -5,15 +5,13 @@ function day13(file)
     instructionsstr = split.(replace.(data[(splitline+1):end],"fold along "=>""),"=");
     instructions = [(a,parse(Int,b)+1) for (a,b) in instructionsstr];
 
-    foldedindsafter1 = [CartesianIndex(foldup(c,instructions[1][1],instructions[1][2])...) for c in coordinates]
+    foldedindsafter1 = [CartesianIndex(foldup(c,instructions[1][1],instructions[1][2])...) for c in coordinates];
     for (axis,foldval) in instructions
         coordinates = [foldup(c,axis,foldval) for c in coordinates];
     end
     cartescoords = unique([CartesianIndex(c...) for c in coordinates]);
-    out = repeat(['.'],maximum(reduce(hcat,coordinates),dims=2)...);
     out = zeros(Int,maximum(reduce(hcat,coordinates),dims=2)...);
     out[cartescoords] .= 1;
-
     return length(unique(foldedindsafter1)), out'
 end
 
