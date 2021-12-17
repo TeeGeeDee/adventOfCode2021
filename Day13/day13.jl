@@ -17,9 +17,8 @@ end
 
 function foldup(index,axis,value)
     ix = axis=="x" ? 1 : 2;
-    rotated = copy(index);
     if index[ix]>value
-        rotated[ix] += 2*(value-index[ix]);
+        index[ix] += 2*(value-index[ix]);
     end
-    return rotated
+    return index
 end
