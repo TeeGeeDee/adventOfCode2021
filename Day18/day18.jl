@@ -13,7 +13,6 @@ function maxpair(lines)
     return maxsofar
 end
 
-
 function addlines(lines)
     return foldl(add,lines)
 end
