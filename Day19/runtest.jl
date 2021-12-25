@@ -138,4 +138,4 @@ const TEST_STRING = """--- scanner 0 ---
 -652,-548,-490
 30,-46,-14"""
 
-@test day19(IOBuffer(TEST_STRING))==79
+@test day19(IOBuffer(TEST_STRING))==(79,3621)
