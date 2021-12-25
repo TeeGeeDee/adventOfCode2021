@@ -10,47 +10,47 @@ const allorientations = Tuple(Orientation((a,f,r)) for a in instances(Axis)
 
 function day19(file)
     scanners = parsescanners(file);
-    i,mapped = 1,Set(1);
-    checkedpairs = Set();
+    # Set up loop so that we always compare something we can map to scanner 1, so that unifying is easy
+    done,todo = Set{Int}(),Set{Int}(1);
     overlappingscanners = Vector{ScannerPair}();
-    while length(mapped)<length(scanners)
-        for j = setdiff(1:length(scanners),union(checkedpairs,i))
-            for orientation2 in allorientations
-                offset2 = matchscanners(scanners[i],scanners[j],orientation2);
-                if !isnothing(offset2)
-                    push!(overlappingscanners,ScannerPair((i,j,orientation2,offset2)))
-                    push!(mapped,j);
-                end
+    while !isempty(todo)
+        i = pop!(todo);
+        push!(done,i);
+        for j = setdiff(1:length(scanners),done)
+            orientation2,offset2 = matchscanners(scanners[i],scanners[j]);
+            if !isnothing(orientation2)
+                push!(overlappingscanners,ScannerPair((i,j,orientation2,offset2)));
+                push!(todo,j);
             end
         end
-        push!(checkedpairs,i);
-        i = first(setdiff(mapped,checkedpairs));
     end
-    readings = standardisescanners(scanners,overlappingscanners);
+    readings = standardisescanners([collect(r) for r in scanners],overlappingscanners);
     return length(unique(readings)),largestmanhattendist(length(scanners),overlappingscanners)
 end
 
-function parsescanners(file)::Vector{Vector{Position}}
-    data = readlines(file);
-    breaks = [findall(startswith.(data,"--- scanner")); length(data)+2];
-    scanners = [[Position(parse.(Int,x)...) for x in split.(data[(breaks[i]+1):(breaks[i+1]-2)],",")] 
+function parsescanners(file)::Vector{Set{Position}}
+    data     = readlines(file);
+    breaks   = [findall(startswith.(data,"--- scanner")); length(data)+2];
+    scanners = [Set([Position(parse.(Int,x)...) for x in split.(data[(breaks[i]+1):(breaks[i+1]-2)],",")]) 
                                             for i in 1:(length(breaks)-1)];
     return scanners
 end
 
-function matchscanners(scanner1::Vector{Position},scanner2::Vector{Position},orientation::Orientation)::Union{Nothing,Position}
-    s1 = Set(scanner1);
-    scanner2 = [rotate(p,orientation) for p in scanner2];
-    out::Union{Nothing,Position} = nothing;
-    for i1 = 1:(length(scanner1)-10), i2 = 1:(length(scanner2)-10) # with 11 left we know we won't match
-        offset = scanner2[i2].I .- scanner1[i1].I;
-        centred2 = Set(Position(p.I.-offset) for p in scanner2);
-        if length(intersect(s1,centred2))>=12
-            out = Position(offset);
-            break
+function matchscanners(scanner1::Set{Position},scanner2::Set{Position})
+    for orientation in allorientations
+        s2 = [rotate(p,orientation) for p in scanner2];
+        vec1,vec2 = collect(scanner1),collect(s2)
+        for i1 = 1:(length(vec1)-10), i2 = 1:(length(vec2)-10) # with 11 left we know we won't match
+            offset = vec2[i2].I .- vec1[i1].I;
+            if !any(offset.>2000)
+                centred2 = Set(Position(p.I.-offset) for p in s2);
+                if length(intersect(scanner1,centred2))>=12
+                    return (orientation,Position(offset));
+                end
+            end
         end
     end
-    return out
+    return (nothing,nothing)
 end
 
 function rotate(p::Position,orientation::Orientation)::Position
@@ -87,7 +87,7 @@ function standardisescanners(scanners::Vector{Vector{Position}},overlappingscann
     out = Vector{Position}();
     for i in 1:length(scanners)
         myview = i;
-        report = scanners[i];
+        report = collect(scanners[i]);
         while myview != 1
             pair = overlappingscanners[findfirst(p.scanner2==myview for p in overlappingscanners)];
             report = [centre(l,pair) for l in report];
