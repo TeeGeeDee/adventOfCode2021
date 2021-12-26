@@ -46,10 +46,9 @@ end
     if any(haswon)
         return Int.(haswon)
     else
-        wins = (0,0);
+        wins = [0,0];
         for diceroll = 1:length(QUANTUM_DICE_FREQ)
-            (nextscores,nextpositions,nextplayer) = makemove(diceroll,scores,positions,activeplayer);
-            wins = wins .+ QUANTUM_DICE_FREQ[diceroll] .* numwinsfrom(nextscores,nextpositions,nextplayer);
+            wins .+= QUANTUM_DICE_FREQ[diceroll] .* numwinsfrom(makemove(diceroll,scores,positions,activeplayer)...);
         end
         return wins
     end
