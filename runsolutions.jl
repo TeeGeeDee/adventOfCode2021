@@ -17,6 +17,7 @@ include("Day16/day16.jl");
 include("Day17/day17.jl");
 include("Day18/day18.jl");
 include("Day19/day19.jl");
+include("Day20/day20.jl");
 
 
 
@@ -41,6 +42,7 @@ day16("Day16/data.txt");
 day17("Day17/data.txt");
 day18("Day18/data.txt");
 day19("Day19/data.txt");
+day20("Day20/data.txt");
 
 
 println("Day 1:");
@@ -120,4 +122,8 @@ println("Solution 1 = $part1. Solution 2 = $part2.");
 println("Day 19:");
 @time part1,part2 = day19("Day19/data.txt");
 # 6.131743 seconds (28.99 M allocations: 8.473 GiB, 17.15% gc time)
+println("Solution 1 = $part1. Solution 2 = $part2.");
+println("Day 20:");
+@time part1,part2 = day20("Day20/data.txt");
+# 2.271468 seconds (53.19 M allocations: 2.152 GiB, 13.18% gc time)
 println("Solution 1 = $part1. Solution 2 = $part2.");
