@@ -19,6 +19,7 @@ include("Day18/day18.jl");
 include("Day19/day19.jl");
 include("Day20/day20.jl");
 include("Day21/day21.jl");
+include("Day22/day22.jl");
 
 
 # get compilation done (is this fair?)
@@ -44,6 +45,7 @@ day18("Day18/data.txt");
 day19("Day19/data.txt");
 day20("Day20/data.txt");
 day21("Day21/data.txt");
+day22("Day22/data.txt");
 
 
 println("Day 1:");
@@ -131,4 +133,8 @@ println("Solution 1 = $part1. Solution 2 = $part2.");
 println("Day 21:");
 @time part1,part2 = day21("Day21/data.txt");
 # 0.000374 seconds (3.67 k allocations: 141.781 KiB)
+println("Solution 1 = $part1. Solution 2 = $part2.");
+println("Day 22:");
+@time part1,part2 = day22("Day22/data.txt");
+# 0.466528 seconds (4.06 M allocations: 366.843 MiB, 5.76% gc time)
 println("Solution 1 = $part1. Solution 2 = $part2.");
