@@ -7,7 +7,18 @@ const TEST_STRING = """#############
   #A#D#C#A#
   #########"""
 
-@test day23(IOBuffer(TEST_STRING))==12521
+@test calcisdone(parseburrow(IOBuffer(TEST_STRING))[1].gamestate)==Bool.([1,0,0,0,0,1,0,0])
+@test calccost(ExtraTravel(Amphipod(A,1)=>0,
+                           Amphipod(A,2)=>1,
+                           Amphipod(B,1)=>0,
+                           Amphipod(B,2)=>1,
+                           Amphipod(C,1)=>0,
+                           Amphipod(C,2)=>0,
+                           Amphipod(D,1)=>0,
+                           Amphipod(D,2)=>0,),parseburrow(IOBuffer(TEST_STRING))[1])==12521
+# Then test getpaths - check that the actual taken path is in the vector output by getpaths when you pass the above extratravel
+
+@test day23(IOBuffer(TEST_STRING))==(12521,44169)
 #=
 b2 -> Position((5,2))
 c1 -> Position((7,2))
