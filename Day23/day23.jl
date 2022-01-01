@@ -1,4 +1,5 @@
 using DataStructures
+using Memoization
 
 const Position = CartesianIndex{2};
 @enum AmphipodType A=Int('A') B=Int('B') C=Int('C') D=Int('D') # Int values chosen to make conversion from chars easy
@@ -11,7 +12,8 @@ struct Amphipod
 end
 const GameState    = OrderedDict{Amphipod,Position};
 const ExtraTravel  = OrderedDict{Amphipod,Int};
-const StartSummary = NamedTuple{(:gamestate,:amphipods,:positions,:isdone,:types,:baselinecost,:maxextratravel,:roomsize),
+const AllExtra = OrderedDict{Amphipod,Vector{Tuple{Int,Vector{Position}}}};
+const StartSummary = NamedTuple{(:gamestate,:amphipods,:positions,:isdone,:types,:baselinecost,:allextratravel,:roomsize),
                                 Tuple{
                                     GameState,
                                     Vector{Amphipod},
@@ -19,7 +21,7 @@ const StartSummary = NamedTuple{(:gamestate,:amphipods,:positions,:isdone,:types
                                     Vector{Bool},
                                     Vector{AmphipodType},
                                     Int,
-                                    ExtraTravel,
+                                    AllExtra,
                                     Int}};
 
 function day23(file)
@@ -59,7 +61,7 @@ function calcstartsummary(startgamestate::GameState)::StartSummary
             isdone         = isdone,
             types          = [a.type for a in keys(startgamestate)],
             baselinecost   = calcbaselinecost(startgamestate,isdone,roomsize),
-            maxextratravel = calcmaxextratraval(startgamestate,isdone),
+            allextratravel = calcallextratraval(startgamestate,isdone),
             roomsize       = roomsize)
 end
 
@@ -79,21 +81,35 @@ end
 
 function calcbaselinecost(startpositions::GameState,isdone::Vector{Bool},roomsize::Int)::Int
     # sum of cost of the lowest possible moves (no accounting for validity/ordering of moves)
-    # TODO: INCORPORATE CASE OF NOT BEING DONE BUT STARTING IN THE CORRECT COLUMN - NEED TO MOVE ONE LEFT/RIGHT AND THEN BACK
     amphipods = collect(keys(startpositions));
     ntomove = Dict(type=>roomsize-sum(isdone[[a.type==type for a in amphipods]]) for type in instances(AmphipodType));
-    return sum(sum(abs.(startpositions[amphipod].I.-(SIDE_ROOM_X[amphipod.type][1][1],2))) * AMPHIPOD_COSTS[amphipod.type] 
-                for amphipod in amphipods[.!isdone]) + 
-            sum(AMPHIPOD_COSTS[type] * Int(ntomove[type]*(ntomove[type]+1)/2) for type in instances(AmphipodType))
+    minmove(from::Position,xto::Int)::Int = from[2]-2 + max(abs(from[1]-xto),2); # max takes care of when you're in the right room, but not done
+    return sum(minmove(startpositions[amphipod],SIDE_ROOM_X[amphipod.type]) * AMPHIPOD_COSTS[amphipod.type]
+                for amphipod in amphipods[.!isdone]) +
+            sum(AMPHIPOD_COSTS[type] * Int(ntomove[type] * (ntomove[type]+1)/2) for type in instances(AmphipodType))
 end
 
-function calcmaxextratraval(startpositions::GameState,isdone::Vector{Bool})::ExtraTravel
-    maxextra = ExtraTravel();
+function calcallextratraval(startpositions::GameState,isdone::Vector{Bool})::AllExtra
+    allextra = AllExtra(a=>Vector{Tuple{Int64, Vector{CartesianIndex{2}}}}() for a in keys(startpositions));
     for (amphipod,isdone) in zip(keys(startpositions),isdone)
-        doors = (startpositions[amphipod][1],SIDE_ROOM_X[amphipod.type]);
-        maxextra[amphipod] = isdone ? 0 : maximum(door-hallend[1] for door in doors for hallend in HALLWAY[[1,end]]);
+        if isdone
+            allextra[amphipod] = [(0,[startpositions[amphipod]])];
+        else
+            startx,endx = startpositions[amphipod][1], SIDE_ROOM_X[amphipod.type];
+            bounds = startx == endx ? [startx-1,startx+1] : [startx,endx];
+            left,right = Tuple(sort(bounds));
+            for i = 0:maximum(p[1] for p in HALLWAY)
+                if i == 0 possiblepositions = Position((left,2)):Position((right,2));
+                else      possiblepositions = Tuple((Position((left-i,2)),Position((right+i,2))));
+                end
+                possiblepositions = intersect(HALLWAY,possiblepositions);
+                if !isempty(possiblepositions)
+                    push!(allextra[amphipod],(i,possiblepositions));
+                end
+            end
+        end
     end
-    return maxextra
+    return allextra
 end
 
 function getmincost(startsummary::StartSummary)::Int
@@ -101,15 +117,22 @@ function getmincost(startsummary::StartSummary)::Int
     queue = Queue{ExtraTravel}();
     enqueue!(queue,OrderedDict(amphipod=>0 for amphipod in startsummary.amphipods));
     triedextras = Set{ExtraTravel}();
-    while true
+    while cost==0
         extratravel = dequeue!(queue);
-        for path in getpaths(extratravel,startsummary)
-            if isvalidpath(path,startsummary.gamestate)
+        println(collect(values(extratravel)));
+        println(calccost(extratravel,startsummary));
+        @time paths = getpaths(extratravel,startsummary);
+        println("Number of paths = $(length(paths))")
+        if calccost(extratravel,startsummary) == 40083 break; end # just for profiling
+        for path in paths
+            isok = isvalidpath(path,startsummary.gamestate);
+            if isok
                 cost = calccost(extratravel,startsummary);
                 break
             end
         end
-        for x in nextleastextratravel!(triedextras,extratravel,startsummary) enqueue!(queue,x); end
+        @time next = nextleastextratravel!(triedextras,extratravel,startsummary);
+        for x in next enqueue!(queue,x); end
     end
     return cost
 end
@@ -134,13 +157,24 @@ function makemove(gamestate::GameState,amphipod::Amphipod,destination::Position)
     return outstate
 end
 
+struct GameStateFull
+    positions::GameState
+    rooms::Dict{AmphipodType,Vector{Amphipod}} # key labels the room act as a stack
+    hallwayoccupancy::Vector{Bool} # is each position in the hallway occupied
+end
+
 function nextmoves(gamestate::GameState,path::Vector{Position})::Dict{Amphipod,Position}
+    # can be smarter - only consider top in each room, and only consider hallway when a room is free to move into
+    # when a room is free to move into (and the path is open), force the move (return only that key,value)
+    # probably just a good idea to combine with <isvalidmove>
+    # Make another data-structure for gamestate, storing the occupants of the rooms and the hallway
+    # Update this upon moving in makemove
     moves = Dict{Amphipod,Position}();
     isdone = calcisdone(gamestate);
     roomsize = length(gamestate)÷length(instances(AmphipodType));
     for (i,amphipod) in enumerate(keys(gamestate))
         currentposition = gamestate[amphipod];
-        if isdone[i] 
+        if isdone[i]
             # in final position, do nothing
         elseif currentposition[2]==2 # in HALLWAY
             moves[amphipod] = Position((SIDE_ROOM_X[amphipod.type],2+roomsize-sum(isdone[[a.type==amphipod.type for a in keys(gamestate)]])));
@@ -151,7 +185,7 @@ function nextmoves(gamestate::GameState,path::Vector{Position})::Dict{Amphipod,P
     return moves
 end
 
-function isvalidmove(gamestate::GameState,amphipod::Amphipod,move::Position)::Bool
+@memoize function isvalidmove(gamestate::GameState,amphipod::Amphipod,move::Position)::Bool
     start = gamestate[amphipod];
     opening = start[2]==2 ? Position((move[1],2)) : Position((start[1],2));
     return isempty(intersect(values(gamestate),
@@ -163,17 +197,9 @@ function calccost(extratravel::ExtraTravel,startsummary::StartSummary)::Int
 end
 
 function getpaths(extratravel::ExtraTravel,start::StartSummary)::Vector{Vector{Position}}
-    # TODO: INCORPORATE CASE OF NOT BEING DONE BUT STARTING IN THE CORRECT COLUMN - NEED TO MOVE ONE LEFT/RIGHT AND THEN BACK
-    paths = [[]];
-    for (amphipod,isdone) in zip(start.amphipods,start.isdone)
-        extra = extratravel[amphipod];
-        startx,endx = start.gamestate[amphipod][1],SIDE_ROOM_X[amphipod.type];
-        if isdone
-            mymoves = [start.gamestate[amphipod]];
-        else
-            mymoves = startx<endx ? ((startx-extra,2),(endx+extra,2)) : ((endx-extra,2),(startx+extra,2));
-            mymoves = intersect(HALLWAY,Position.(mymoves));
-        end
+    paths = [Vector{Position}()];
+    for amphipod in start.amphipods
+        mymoves = [m[2] for m in start.allextratravel[amphipod] if m[1]==extratravel[amphipod]][1];
         paths = [[prev; x] for x in mymoves for prev in paths];
     end
     return paths
@@ -183,19 +209,25 @@ function nextleastextratravel!(triedextras::Set{ExtraTravel},extratravel::ExtraT
     out = Vector{ExtraTravel}();
     baseline = copy(extratravel);
     for type in instances(AmphipodType)
-        ismaxed = Dict(Amphipod(type,id)=>(start.maxextratravel[Amphipod(type,id)]==baseline[Amphipod(type,id)]) for id in 1:start.roomsize);
-        if all(values(ismaxed))
-            for i in 1:start.roomsize baseline[Amphipod(type,i)] = 0; end
+        minincs = Dict{Amphipod,Int}();
+        theseamphipods = [a for a in start.amphipods if a.type==type];
+        for amphipod in theseamphipods
+            ix = findfirst(x[1]==baseline[amphipod] for x in start.allextratravel[amphipod]);
+            if ix < length(start.allextratravel[amphipod])
+                minincs[amphipod] = start.allextratravel[amphipod][ix+1][1]-baseline[amphipod]
+            end
+        end
+        if isempty(minincs)
+            for amphipod in theseamphipods
+                baseline[amphipod] = 0;#start.allextratravel[amphipod][1][1]; # reset this type to lowest values, increment more expensive types
+            end
         else
-            for (amphipod,ismax) in ismaxed
-                if !ismax
-                    x = copy(baseline);
-                    x[amphipod] += 1;
-                    if !(x in triedextras)
-                        if calccost(x,start) == 12521 println(x); end
-                        push!(out,x);
-                        push!(triedextras,x);
-                    end
+            for amphipod in keys(minincs)
+                x = copy(baseline);
+                x[amphipod] += minincs[amphipod];
+                if !(x in triedextras)
+                    push!(out,x);
+                    push!(triedextras,x);start.allextratravel[amphipod];
                 end
             end
             break
@@ -203,3 +235,6 @@ function nextleastextratravel!(triedextras::Set{ExtraTravel},extratravel::ExtraT
     end
     return out
 end
+
+# start with better lower bound of extratravel for part 2
+# for example if there are none done, and none at the top of other rooms, all need to be in ... no, that's not true
