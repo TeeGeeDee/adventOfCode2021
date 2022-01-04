@@ -141,6 +141,6 @@ println("Day 22:");
 # 0.466528 seconds (4.06 M allocations: 366.843 MiB, 5.76% gc time)
 println("Solution 1 = $part1. Solution 2 = $part2.");
 println("Day 23:");
-@time part1 = day23("Day23/data.txt");
-# 
-println("Solution 1 = $part1.");
+@time part1,part2 = day23("Day23/data.txt");
+# 2.880616 seconds (8.78 M allocations: 901.155 MiB, 10.98% gc time)
+println("Solution 1 = $part1. Solution 2 = $part2.");
