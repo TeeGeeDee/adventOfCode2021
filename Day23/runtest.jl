@@ -8,8 +8,10 @@ const TEST_STRING = """#############
   #########"""
 
 startsummary = parseburrow(IOBuffer(TEST_STRING))[1];
+
 @test calcisdone(startsummary.gamestate)==Bool.([1,0,0,0,0,1,0,0]);
-@test calcbaselinecost(startsummary.gamestate,startsummary.isdone,startsummary.roomsize)==12000+400+90+9;
+#@test calcbaselinecost(startsummary.gamestate,startsummary.isdone,startsummary.roomsize)==12000+400+90+9;
+#=
 extratravel   = ExtraTravel(Amphipod(A,1)=>0,
                             Amphipod(A,2)=>1,
                             Amphipod(B,1)=>0,
@@ -26,6 +28,7 @@ path = [Position((4,4)),Position((11,2)),
 @test path in getpaths(extratravel,startsummary);
 # Then test getpaths - check that the actual taken path is in the vector output by getpaths when you pass the above extratravel
 @test isvalidpath(path,startsummary.gamestate);
+=#
 
 @test day23(IOBuffer(TEST_STRING))==(12521,44169);
 #=
